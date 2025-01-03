@@ -16,7 +16,7 @@ Now if anything goes wrong, you can restore your config with `sudo cp /root/back
 
 `sudo nano /etc/network/interfaces`
 
-Saste the following lines:
+Paste the following lines:
 
 ```bash
 auto end1
@@ -29,15 +29,13 @@ Save changes and exit nano.
 
 ## 4. Apply changes
 
-`sudo ifdown end1`
+`sudo ifdown end1 && sudo ifup end1`
 
 > Note: May give the message "ifdown: interface end1 not configured". This does not mean something went wrong.
 
-`sudo ifup end1`
-
 ## 5. Test changes
 
-`pipx install speedtest`
+`pipx install speedtest-cli`
 
 `speedtest`
 
