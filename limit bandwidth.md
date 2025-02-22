@@ -1,37 +1,51 @@
 # Limit bandwidth with wondershaper
 
-## 1. Install tools
+## 1. Uninstall Debian Wondershaper
 
-`sudo apt install wondershaper ifupdown isc-dhcp-client`
+This version of Wondershaper is outdated and will not work properly.
 
-## 2. Backup network interfaces config
+`sudo apt remove wondershaper`
 
-`sudo cp /etc/network/interfaces /root/backup.interfaces`
+## 2. Install Wondershaper from GitHub
 
-Now if anything goes wrong, you can restore your config with `sudo cp /root/backup.interfaces /etc/network/interfaces`.
+`git clone https://github.com/magnific0/wondershaper.git`
 
-## 3. Set bandwidth limitations
+`cd wondershaper`
+
+`sudo make install`
+
+`sudo which wondershaper`  
+This should return `/usr/bin/wondershaper` if it installed correctly.
+
+## 3. Configure wondershaper
 
 > Note: You can list your network devices with `ip addr`.
 
-`sudo nano /etc/network/interfaces`
+`sudo nano /etc/systemd/wondershaper.conf`
 
-Paste the following lines:
+- change adaptor from `eth0` to `end1`
+- set download and upload speeds
 
-```bash
-auto end1
-iface end1 inet dhcp
-    up /sbin/wondershaper end1 1024 512
-    down /sbin/wondershaper remove end1
-```
+## 4. Enable wondershaper as a systemd service
 
-Save changes and exit nano.
+`sudo systemctl enable --now wondershaper.service`
 
-## 4. Apply changes
+> Note: If you run into this error:
+>
+> ```
+> Job for wondershaper.service failed because the control > process exited with error code.
+> See "systemctl status wondershaper.service" and "journalctl > -xeu wondershaper.service" for details.
+> ```
+>
+> Then you need to change the service executable file location.
+>
+> `sudo nano /usr/local/lib/systemd/system/wondershaper.service`
+>
+> Change `/usr/sbin/wondershaper` to `/usr/local/sbin/wondershaper` in ExecStart and ExecStop
+>
+> Save the file and try to enable the service again.
 
-`sudo ifdown end1 && sudo ifup end1`
-
-> Note: May give the message "ifdown: interface end1 not configured". This does not mean something went wrong.
+Wondershaper should now be activated upon reboot.
 
 ## 5. Test changes
 
@@ -40,5 +54,3 @@ Save changes and exit nano.
 `speedtest`
 
 > Note: If you get "ERROR: HTTP Error 403: Forbidden", try running `speedtest --secure`.
-
-Results should be around 1024 Kb up and 512 Kb down.
